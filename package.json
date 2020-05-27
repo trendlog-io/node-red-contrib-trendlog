@@ -2,7 +2,6 @@
   "name": "node-red-contrib-trendlog",
   "version": "1.0.0",
   "description": "A node to send data to the trendlog.io platform",
-  "main": "trendlog.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -17,7 +16,7 @@
   ],
   "node-red": {
     "nodes": {
-      "Trendlog": "trendlog.js"
+      "Trendlog": "trendlog/trendlog.js"
     }
   }
 }
