@@ -11,7 +11,10 @@
   },
   "author": "Lars Märcher Sandig",
   "license": "trendlog.io",
-  "keywords": ["node-red","trendlog.io"],
+  "keywords": [
+    "node-red",
+    "trendlog.io"
+  ],
   "node-red": {
     "nodes": {
       "Trendlog": "trendlog.js"
