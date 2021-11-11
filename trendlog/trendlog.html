@@ -1,7 +1,7 @@
 <script type="text/javascript">
 	RED.nodes.registerType('Trendlog',{
 		category: 'trendlog',
-		color: '#42f55a',
+		color: '#56be5e',
 		defaults: {
 		trendlogsetup: {type:"Trendlog-setup", required:true},
 		name: {value: ""},
@@ -13,7 +13,7 @@
 			return this.name?"node_label_italic":"";
 		},
 		inputs:1,
-		icon: "trendlog-node-red-icon.png",
+		icon: "trendlog-ikon-2.svg",
 		align: 'right',
 	});
 </script>
@@ -60,15 +60,23 @@ RED.nodes.registerType('Trendlog-setup',{
 		$("#node-config-input-prefix").prop("disabled", true); 
 
 		if($("#node-config-input-datalocation").val() == "trendlogio") {
-			$("#node-config-input-trendlogio").prop("checked", true); 
+			$("#node-config-input-trendlogio-log").prop("checked", true); 
+		}
+		else if($("#node-config-input-datalocation").val() == "trendlogiolive") {
+			$("#node-config-input-trendlogio-live").prop("checked", true); 
 		}
 		else {
 			$("#node-config-input-dataforwarder").prop("checked", true); 
 			$("#node-config-input-trendloghost").prop("disabled", false); 
 			$("#node-config-input-prefix").prop("disabled", false); 
 		}
-		$("#node-config-input-trendlogio").click(function() { 
+		$("#node-config-input-trendlogio-log").click(function() { 
 			$("#node-config-input-datalocation").val("trendlogio");
+			$("#node-config-input-trendloghost").prop("disabled", true); 
+			$("#node-config-input-prefix").prop("disabled", true); 
+		});
+		$("#node-config-input-trendlogio-live").click(function() { 
+			$("#node-config-input-datalocation").val("trendlogiolive");
 			$("#node-config-input-trendloghost").prop("disabled", true); 
 			$("#node-config-input-prefix").prop("disabled", true); 
 		});
@@ -100,8 +108,12 @@ RED.nodes.registerType('Trendlog-setup',{
 				<label style="width:auto"> <span data-i18n="trendlog.setup.label.store"></span>:</label>
 				<ul>	
 					<li>
-						<label for="node-config-input-trendlogio" style="width:280px"> <span data-i18n="trendlog.setup.label.trendlogio"></span></label>	
-						<input type="radio" id="node-config-input-trendlogio" name="datalocation" style="width: auto;">
+						<label for="node-config-input-trendlogio-log" style="width:280px"> <span data-i18n="trendlog.setup.label.trendlogio"></span></label>	
+						<input type="radio" id="node-config-input-trendlogio-log" name="datalocation" style="width: auto;">
+					</li>
+					<li>
+						<label for="node-config-input-trendlogio-live" style="width:280px"> <span data-i18n="trendlog.setup.label.trendlogiolive"></span></label>	
+						<input type="radio" id="node-config-input-trendlogio-live" name="datalocation" style="width: auto;">
 					</li>
 					<li>
 						<label for="node-config-input-dataforwarder" style="width:280px"><span data-i18n="trendlog.setup.label.dataforwarder"></span></label>

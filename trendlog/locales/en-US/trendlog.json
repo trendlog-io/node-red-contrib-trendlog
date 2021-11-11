@@ -23,7 +23,8 @@
                 "stop": "Stop logging, keep oldest records",
                 "continue": "Continue logging, overwrite oldest records",
                 "offline": "When offline",
-                "trendlogio": "trendlog.io",
+                "trendlogio": "api.trendlog.io",
+                "trendlogiolive": "live.trendlog.io",
                 "dataforwarder": "Dataforwarder (TDF)",
                 "sd": "MicroSD card",
                 "store": "Send logged data to"
