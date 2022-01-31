@@ -45,7 +45,7 @@ RED.nodes.registerType('Trendlog-setup',{
 		name: {value: ""},
 		apiKey: {value: "", required:true},
 		datalocation:  {value: ""},
-		trendloghost: {value: "http://127.0.0.1"},
+		trendloghost: {value: "127.0.0.1"},
 		prefix: {value: ""}
 	},
 	label: function() {
@@ -122,7 +122,7 @@ RED.nodes.registerType('Trendlog-setup',{
 				</ul>
 				<div class="form-row">
 					<label for="node-config-input-trendloghost"><i class="fa fa-cloud"></i> <span data-i18n="trendlog.label.host"></span></label>
-					<input type="text" id="node-config-input-trendloghost" placeholder="trendlog.io dataforwarder api">
+					<input type="text" id="node-config-input-trendloghost" placeholder="trendlog.io collector ip">
 				</div>	
 				<div class="form-row">
 					<label for="node-input-prefix"><i class="fa fa-tag"></i> <span data-i18n="trendlog.label.prefix"></span></label>

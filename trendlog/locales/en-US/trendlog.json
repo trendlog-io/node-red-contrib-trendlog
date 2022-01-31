@@ -5,7 +5,7 @@
             "config" : "Setup",
             "delay" : "Delay",
             "feed" : "Feed name",
-            "host" : "API route",
+            "host" : "Collector IP",
             "prefix" : "Feed prefix"
         },
         "status" : {

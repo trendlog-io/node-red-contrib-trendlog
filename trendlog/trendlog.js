@@ -7,8 +7,7 @@ module.exports = function(RED) {
         var node = this;
 
         /**Required moduels**/
-        const request = require('request');
-        
+        const https = require('https');
 
         /**CONFIG variables**/
         var apiKey_config = this.trendlogsetup.apiKey;
@@ -20,17 +19,23 @@ module.exports = function(RED) {
         /********************/
        
         /**Trendlog related variables**/
-        var minPostInterval = 5; //sec
-        var trendlogPOSTUrl = `https://api.trendlog.io/V1/channels/update/${apiKey_config}`;
+        var minPostInterval = 30; //sec
+        var trendlogHost = "api.trendlog.io";
+        var trendlogPath = `/V1/channels/update/${apiKey_config}`;
+        var trendlogPort = 443;
         if(datalocation_config == "trendlogio") {
-            trendlogPOSTUrl = `https://api.trendlog.io/V1/channels/update/${apiKey_config}`;
+            trendlogPath = `/V1/channels/update/${apiKey_config}`;
             minPostInterval = 30; //sec
         }
-        else if(datalocation_config == "trendlogiolive") {
-            trendlogPOSTUrl = `https://api.trendlog.io/V1/channels/live/${apiKey_config}`;
+        else if(datalocation_config == "trendlogiolive") 
+        {
+            trendlogPath = `/V1/channels/live/${apiKey_config}`;
+            minPostInterval = 5; //sec
         }
         else {
-            trendlogPOSTUrl = host_config + `/${apiKey_config}`+(prefix_config!=undefined&&prefix_config!=""?`?prefix=`+prefix_config:``);
+            trendlogHost = host_config;
+            trendlogPath = `/V1/channels/update/${apiKey_config}`+(prefix_config!=undefined&&prefix_config!=""?`?prefix=`+prefix_config:``);
+            trendlogPort = 80;
         }
         var timestamp;
         var value;
@@ -52,38 +57,45 @@ module.exports = function(RED) {
 
             //Setup HTTPS request options.
             var options = {
-                url: trendlogPOSTUrl,
-                body: toTrendlog,
-                json: true,
-/*                agentOptions: {
-                    ca: ca_certificates
+                hostname: trendlogHost,
+                port: trendlogPort,
+                path: trendlogPath,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': JSON.stringify(toTrendlog).length
                 }
-*/            }
-           
+            }
             lastPostTime = Date.now();
+            // console.log(options);
 
-            //Post toTrendlog             
-            request.post(options, function(error, response, body){
-                    
-                    if(error) {
-                        node.error(error);
-                        node.status({fill:"red",shape:"dot",text:`${error}`});
-                        busyFlag = 0;
-                        return;    
-                    }    
-                    else if(response.statusCode != 200) {
-                        node.error(`Status code: ${response.statusCode}`);
-                        node.error(`Status message: ${response.statusMessage}`);
-                        node.status({fill:"red",shape:"dot",text:`${response.statusMessage}, ${response.statusCode}`});
-//                        node.status({fill:"red",shape:"dot",text:`${response.statusMessage}, ${response.statusCode}, Queue: ${sqliteGetAll(tableName).length}`});
-                    }
-                    else {
-//                        setTimeout(trendlogPostData, 1); 
-                        uploadCount++;
-                        node.status({fill:"green",shape:"dot",text:`Total: ${uploadCount}`});
-                    }
-                    busyFlag = 0;
+            //Post toTrendlog
+            var req = https.request(options, res => {
+                // node.error(`Status code: ${res.statusCode}`);
+                // node.error(`Status message: ${res.statusMessage}`);
+                if(res.statusCode!=200)
+                    node.status({fill:"red",shape:"dot",text:`${res.statusMessage}, ${res.statusCode}`});
+                else
+                {
+                    uploadCount++;
+                    node.status({fill:"green",shape:"dot",text:`Total: ${uploadCount}`});
+                }
+
+                res.on('data', d => {
+                  process.stdout.write(d)
+                })
             });
+
+            req.on('error', error => {
+                // node.error(error);
+                node.status({fill:"red",shape:"dot",text:`${error}`});
+                busyFlag = 0;
+                return;
+            });
+
+            req.write(JSON.stringify(toTrendlog));
+            req.end();
+            busyFlag = 0;
         }
 
         /****************************************/
@@ -106,7 +118,7 @@ module.exports = function(RED) {
             
             // validate value
             if((datalocation_config == "trendlogiolive" && value.hasOwnProperty("feeds")&&value.feeds.length > 0&&value.feeds[0].hasOwnProperty("timestamp")) ||
-                (value.hasOwnProperty("data")&&value.data.length > 0&&value.data[0].hasOwnProperty("timestamp")))
+                (datalocation_config != "trendlogiolive" && value.hasOwnProperty("data")&&value.data.length > 0&&value.data[0].hasOwnProperty("timestamp")))
             {
                 node.status({fill:"yellow",shape:"dot",text:`Total: ${uploadCount}`});
                 trendlogPostData(value);    
@@ -114,8 +126,16 @@ module.exports = function(RED) {
             else
             {
 //                node.error(`Status code: ${response.statusCode}`);
-                node.error(`Status message: "Data not valid."`);
-                node.status({fill:"red",shape:"dot",text:`Data not valid`});
+                if(datalocation_config == "trendlogiolive")
+                {
+                    node.error(`Status message: "Live Data format not valid."`);
+                    node.status({fill:"red",shape:"dot",text:`Live Data format not valid`});
+                }
+                else
+                {
+                    node.error(`Status message: "Log Data format not valid."`);
+                    node.status({fill:"red",shape:"dot",text:`Log Data format not valid`});
+                }
             }
         });
 
