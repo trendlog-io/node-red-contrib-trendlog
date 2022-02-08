@@ -34,7 +34,7 @@ module.exports = function(RED) {
         }
         else {
             trendlogHost = host_config;
-            trendlogPath = `/V1/channels/update/${apiKey_config}`+(prefix_config!=undefined&&prefix_config!=""?`?prefix=`+prefix_config:``);
+            trendlogPath = `/api/V1/channels/update/${apiKey_config}`+(prefix_config!=undefined&&prefix_config!=""?`?prefix=`+prefix_config:``);
             trendlogPort = 80;
         }
         var timestamp;
