@@ -8,6 +8,7 @@ module.exports = function(RED) {
 
         /**Required moduels**/
         const https = require('https');
+        const http = require('http');
 
         /**CONFIG variables**/
         var apiKey_config = this.trendlogsetup.apiKey;
@@ -70,21 +71,43 @@ module.exports = function(RED) {
             // console.log(options);
 
             //Post toTrendlog
-            var req = https.request(options, res => {
-                // node.error(`Status code: ${res.statusCode}`);
-                // node.error(`Status message: ${res.statusMessage}`);
-                if(res.statusCode!=200)
-                    node.status({fill:"red",shape:"dot",text:`${res.statusMessage}, ${res.statusCode}`});
-                else
-                {
-                    uploadCount++;
-                    node.status({fill:"green",shape:"dot",text:`Total: ${uploadCount}`});
-                }
-
-                res.on('data', d => {
-                  process.stdout.write(d)
-                })
-            });
+            var req = null;
+            if(trendlogPort==80)
+            {
+                req = http.request(options, res => {
+                    // node.error(`Status code: ${res.statusCode}`);
+                    // node.error(`Status message: ${res.statusMessage}`);
+                    if(res.statusCode!=200)
+                        node.status({fill:"red",shape:"dot",text:`${res.statusMessage}, ${res.statusCode}`});
+                    else
+                    {
+                        uploadCount++;
+                        node.status({fill:"green",shape:"dot",text:`Total: ${uploadCount}`});
+                    }
+    
+                    res.on('data', d => {
+                      process.stdout.write(d)
+                    })
+                });
+            }
+            else
+            {
+                req = https.request(options, res => {
+                    // node.error(`Status code: ${res.statusCode}`);
+                    // node.error(`Status message: ${res.statusMessage}`);
+                    if(res.statusCode!=200)
+                        node.status({fill:"red",shape:"dot",text:`${res.statusMessage}, ${res.statusCode}`});
+                    else
+                    {
+                        uploadCount++;
+                        node.status({fill:"green",shape:"dot",text:`Total: ${uploadCount}`});
+                    }
+    
+                    res.on('data', d => {
+                      process.stdout.write(d)
+                    })
+                });    
+            }
 
             req.on('error', error => {
                 // node.error(error);
