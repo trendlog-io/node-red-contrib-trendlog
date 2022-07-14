@@ -4,6 +4,8 @@
 		color: '#56be5e',
 		defaults: {
 		trendlogsetup: {type:"Trendlog-setup", required:true},
+		devicesetup: {type:"Device-ID-setup", required:true},
+		enableprefix: {value: true},
 		name: {value: ""},
 		},
 		label: function() {
@@ -15,6 +17,27 @@
 		inputs:1,
 		icon: "trendlog-ikon-2.svg",
 		align: 'right',
+		oneditprepare: function() {
+			var enableprefix = this.enableprefix;
+			if(enableprefix==true)
+				$("#node-input-deviceid-enable").html('<i class="fa fa-circle-o"></i> Enabled');
+			else
+				$("#node-input-deviceid-enable").html('<i class="fa fa-circle"></i> Disabled');
+
+			$("#node-input-deviceid-enable").on("click", function(evt){
+				if(enableprefix==true)
+				{
+					$("#node-input-deviceid-enable").html('<i class="fa fa-circle"></i> Disabled');
+					enableprefix = false;
+				}
+				else
+				{
+					$("#node-input-deviceid-enable").html('<i class="fa fa-circle-o"></i> Enabled');
+					enableprefix = true;
+				}
+				$("#node-input-enableprefix").val(enableprefix);
+			});		
+		}
 	});
 </script>
 
@@ -29,22 +52,53 @@
 		<input type="text" id="node-input-trendlogsetup">
 	</div>	
 
+	<div class="form-row">
+		<label for="node-input-devicesetup"><i class="fa fa-tag"></i> <span data-i18n="trendlog.label.device"></span></label>
+		<input type="text" id="node-input-devicesetup">
+	</div>	
+
+	<div class="form-row">
+		<div id="node-input-enableprefix">
+			<label for="node-input-deviceid-enable"></label>
+			<button id="node-input-deviceid-enable"><i class="fa fa-circle-o"></i> Enabled</button>
+    	</div>
+	</div>
 </script>
 
 <script type="text/x-red" data-help-name="Trendlog">
-
+	<p>Connects to the trendlog.IO Cloud and publishes the data.</p>
+		
+	<h3>Inputs</h3>
+		<dl class="message-properties">
+			<dt>payload
+				<span class="property-type">buffer</span>
+			</dt>
+			<dd>The payload structure must be like.
+				<code>{"data":[{</code></br>
+				<code>	"timestamp": "YYYY-MM-DD hh:mm:ss.v",</code></br>
+				<code>	"feedname_1": value,</code></br>
+				<code>	"feedname_2": value,</code></br>
+				<code>	...}]}</code></br>
+			</dd>
+		</dl>
 	
+	<h3>Details</h3>
+		<p><code>msg.payload</code> is used as the payload of the publiched data.</p>
+	
+	<h3>References</h3>
+		<ul>
+			<li><a href="https://www.trendlog.io">trendlog.IO API docs</a> - full description</li>
+		</ul>
 </script>
 
 <!-- configuration node -->
-
 <script type="text/javascript">
 RED.nodes.registerType('Trendlog-setup',{
 	category: 'config',
 	defaults: {
 		name: {value: ""},
 		apiKey: {value: "", required:true},
-		datalocation:  {value: ""},
+		datalocation:  {value: "trendlogio"},
 		trendloghost: {value: "127.0.0.1"},
 		prefix: {value: ""}
 	},
@@ -55,7 +109,7 @@ RED.nodes.registerType('Trendlog-setup',{
 		var name_value = this.name;
 		var apiKey_value = this.apiKey;
 		var datalocation_value = this.datalocation;
-		
+
 		$("#node-config-input-trendloghost").prop("disabled", true); 
 		$("#node-config-input-prefix").prop("disabled", true); 
 
@@ -84,7 +138,13 @@ RED.nodes.registerType('Trendlog-setup',{
 			$("#node-config-input-datalocation").val("dataforwarder");
 			$("#node-config-input-trendloghost").prop("disabled", false); 
 			$("#node-config-input-prefix").prop("disabled", false); 
-		});		
+		});
+		// $("#node-config-input-trendlog-type").change(function() {
+		// 	if($("#node-config-input-trendlog-type").val()=="onchange")
+		// 		$("#node-config-input-trigger-list-section").hide();
+		// 	else
+		// 		$("#node-config-input-trigger-list-section").show();
+		// })
 	}
 });
 </script>
@@ -100,7 +160,6 @@ RED.nodes.registerType('Trendlog-setup',{
 		<label for="node-config-input-apiKey"><i class="fa fa-key"></i> <span data-i18n="trendlog.setup.label.api"></span></label>
 		<input type="text" id="node-config-input-apiKey" placeholder="Trendlog Write API Key">
 	</div>	
-
 	
 	<div style="border:dashed; border-color:rgb(204, 204, 204); padding-top:5px; padding-bottom:5px; padding-left:5px; padding-right:5px; border-width:2px">
 		<div class="form-row" style="margin-bottom:16px">
@@ -132,10 +191,76 @@ RED.nodes.registerType('Trendlog-setup',{
 		</div>
 	</div>
 
+	<!--div style="border:dashed; border-color:rgb(204, 204, 204); padding-top:5px; padding-bottom:5px; padding-left:5px; padding-right:5px; border-width:2px">
+		<div id="node-config-input-datalog">
+			<label style="width:auto"> <span data-i18n="trendlog.setup.label.datalog"></span>:</label>
+			<div class="form-row">
+				<label> <span data-i18n="trendlog.setup.label.triggertype"></span></label>	
+				<select id="node-config-input-trendlog-type">
+					<option value="hour">Hour</option>
+					<option value="minute" selected>Minute</option>
+					<option value="second">Second</option>
+					<option value="onchange">On Change</option>
+				</select>
+			</div>
+			<div class="form-row" id="node-config-input-trigger-list-section">
+				<label for="node-config-input-trendlog-list"><span data-i18n="trendlog.setup.label.trigger"></span></label>	
+				<select id="node-config-input-trendlog-list" size="5"></select></br>
+				<label for="node-config-input-add-element"><span data-i18n="trendlog.setup.label.trigger"></span></label>	
+				<button id="node-config-input-add-element"><i class="fa fa-plus"></i>Add</button>
+			</div>
+		</div>
+	</div-->
 
-	
 </script>
 
 <script type="text/x-red" data-help-name="Trendlog-setup">
 
 </script>
+
+<script type="text/javascript">
+	RED.nodes.registerType('Device-ID-setup',{
+		category: 'config',
+		defaults: {
+			name: {value: ""},
+			deviceID: {value: "", required:true},
+		},
+		label: function() {
+			return this.name||"Trendlog Device";
+		},
+		oneditprepare: function() {
+			var name_value = this.name;
+	
+			if(this.deviceID === undefined || this.deviceID === "")
+			{
+				let result = "";
+				let hexChar = "0123456789abcdef";
+				for (var i = 0; i < 8; i++) {
+					result += hexChar.charAt(Math.floor(Math.random() * hexChar.length));
+				}
+				this.name = this.deviceID = result;
+				$("#node-config-input-deviceID").val(this.deviceID);
+				$("#node-config-input-name").val(this.deviceID);
+			}	
+		}
+	});
+</script>
+	
+<script type="text/x-red" data-template-name="Device-ID-setup">
+	
+		<div class="form-row">
+			<label for="node-config-input-name"><i class="fa fa-tag"></i> <span data-i18n="trendlog.setup.label.name"></span></label>
+			<input type="text" id="node-config-input-name" placeholder="Name">
+		</div>
+	
+		<div class="form-row">
+			<label for="node-config-input-deviceID"><i class="fa fa-tag"></i> <span data-i18n="trendlog.setup.label.deviceid"></span></label>
+			<input type="text" id="node-config-input-deviceID" placeholder="Trendlog Device ID" >
+		</div>	
+			
+</script>
+	
+<script type="text/x-red" data-help-name="Device-ID-setup">
+	
+</script>
+	

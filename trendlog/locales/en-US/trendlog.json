@@ -3,6 +3,7 @@
         "label" : {
             "name" : "Name",
             "config" : "Setup",
+            "device" : "Device ID",
             "delay" : "Delay",
             "feed" : "Feed name",
             "host" : "Collector IP",
@@ -16,6 +17,8 @@
             "label" : {
                 "name" : "Name",
                 "api" : "Api write key",
+                "deviceid" : "Device ID",
+                "enabledeviceid" : "Enable Device ID",
                 "delay" : "Interval",
                 "limit": "When limit of logged data is reached:",
                 "seconds": "Seconds",
@@ -26,8 +29,10 @@
                 "trendlogio": "api.trendlog.io",
                 "trendlogiolive": "live.trendlog.io",
                 "dataforwarder": "Dataforwarder (TDF)",
-                "sd": "MicroSD card",
-                "store": "Send logged data to"
+                "store": "Send logged data to",
+                "datalog": "Setup datalog",
+                "triggertype": "Trigger type",
+                "trigger": "Trigger"
             }
         }
     }
