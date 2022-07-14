@@ -196,8 +196,8 @@ module.exports = function(RED) {
                             value["feeds"][index] = element;
                             });
                         }
-                        valid = true;
                     }
+                    valid = true;
                 }
 
                 if(valid)
